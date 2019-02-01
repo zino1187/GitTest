@@ -290,6 +290,7 @@ public class GUIClient extends JFrame{
 			}
 			getRecords(sql);
 		} catch (SQLException e) {
+			JOptionPane.showMessageDialog(this, e);
 			e.printStackTrace();
 		}
 		
