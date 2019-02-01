@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Choice;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -67,6 +68,7 @@ public class GUIClient extends JFrame{
 		sc2=new JScrollPane(table_result);
 		bt_sql=new JButton("쿼리실행");
 		
+		area.setFont(new Font("돋움",Font.BOLD,30));
 		//서쪽 영역의 컴포넌트 크기를 150으로...
 		Dimension d = new Dimension(150,25);
 		
@@ -130,8 +132,19 @@ public class GUIClient extends JFrame{
 				
 				String tableName=(String)table_object.getValueAt(row, col);
 				
-				getRecords(tableName);
+				getRecords("select * from "+tableName);
 			}	
+		});
+		
+		//쿼리실행 버튼과 리스너 연결
+		bt_sql.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(area.getText().length()>0){
+					executeSQL();
+				}else {
+					JOptionPane.showMessageDialog(GUIClient.this,"쿼리문을 입력하세요");
+				}
+			}
 		});
 		
 		addWindowListener(new WindowAdapter() {
@@ -220,11 +233,9 @@ public class GUIClient extends JFrame{
 	}
 	
 	//선택한 테이블의 레코드 가져오기!!
-	public void getRecords(String tableName) {
+	public void getRecords(String sql) {
 		PreparedStatement pstmt=null;
 		ResultSet rs=null;
-		String sql="select * from "+tableName;
-		
 		try {
 			pstmt=con.prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			rs=pstmt.executeQuery();
@@ -264,6 +275,25 @@ public class GUIClient extends JFrame{
 		
 	}
 	
+	public void executeSQL() {
+		PreparedStatement pstmt=null;
+		ResultSet rs=null;
+		String sql=area.getText();
+		
+		try {
+			pstmt=con.prepareStatement(sql);
+			boolean result=pstmt.execute();
+			if(result) {//true인 경우 select !!
+				System.out.println("select문 수행했어?");
+			}else {//DML 을 수행..
+				System.out.println("DML 수행했어?");
+			}
+			getRecords(sql);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+	}
 	
 	public static void main(String[] args) {
 		new GUIClient();
